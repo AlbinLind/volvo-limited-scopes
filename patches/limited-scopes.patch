@@ -1,0 +1,104 @@
+diff --git a/const.py b/const.py
+index 1234567..abcdefg 100644
+--- a/const.py
++++ b/const.py
+@@ -1,6 +1,36 @@
+ """Constants for the Volvo integration."""
+ 
+ from homeassistant.const import Platform
+ 
+ DOMAIN = "volvo"
++
++# Limited scopes - excludes sensitive commands
++# This allows using the integration with apps that have restricted permissions
++LIMITED_SCOPES = [
++    "openid",
++    # Read-only vehicle data
++    "conve:battery_charge_level",
++    "conve:brake_status",
++    "conve:climatization_start_stop",
++    "conve:command_accessibility",
++    "conve:commands",
++    "conve:diagnostics_engine_status",
++    "conve:diagnostics_workshop",
++    "conve:doors_status",
++    "conve:engine_status",
++    "conve:fuel_status",
++    "conve:lock_status",
++    "conve:odometer_status",
++    "conve:trip_statistics",
++    "conve:tyre_status",
++    "conve:vehicle_relation",
++    "conve:warnings",
++    "conve:windows_status",
++    "energy:capability:read",
++    "energy:state:read",
++    "location:read",
++]
++# Excluded sensitive scopes:
++# - conve:lock (lock car)
++# - conve:unlock (unlock car)
++# - conve:engine_start_stop (start/stop engine)
++# - conve:honk_flash (honk and flash)
++
+ PLATFORMS: list[Platform] = [
+     Platform.BINARY_SENSOR,
+     Platform.BUTTON,
+diff --git a/application_credentials.py b/application_credentials.py
+index 1234567..abcdefg 100644
+--- a/application_credentials.py
++++ b/application_credentials.py
+@@ -1,7 +1,7 @@
+ """Application credentials platform for the Volvo integration."""
+ 
+ from typing import override
+ 
+ from volvocarsapi.auth import AUTHORIZE_URL, TOKEN_URL
+-from volvocarsapi.scopes import ALL_SCOPES
+ 
+ from homeassistant.components.application_credentials import ClientCredential
+ from homeassistant.core import HomeAssistant
+@@ -9,6 +9,8 @@
+     LocalOAuth2ImplementationWithPkce,
+ )
+ 
++from .const import LIMITED_SCOPES
++
+ 
+ async def async_get_auth_implementation(
+     hass: HomeAssistant, auth_domain: str, credential: ClientCredential
+@@ -27,7 +29,7 @@ class VolvoOAuth2Implementation(LocalOAuth2ImplementationWithPkce):
+     def extra_authorize_data(self) -> dict:
+         """Extra data that needs to be appended to the authorize url."""
+         return super().extra_authorize_data | {
+-            "scope": " ".join(ALL_SCOPES),
++            "scope": " ".join(LIMITED_SCOPES),
+         }
+diff --git a/config_flow.py b/config_flow.py
+index 1234567..abcdefg 100644
+--- a/config_flow.py
++++ b/config_flow.py
+@@ -12,7 +12,6 @@
+ from volvocarsapi.models import VolvoApiException, VolvoCarsVehicle
+-from volvocarsapi.scopes import ALL_SCOPES
+ 
+ from homeassistant.config_entries import (
+     SOURCE_REAUTH,
+@@ -27,6 +26,8 @@
+     TextSelectorType,
+ )
+ 
++from .const import LIMITED_SCOPES
++
+ from .api import ConfigFlowVolvoAuth
+ from .const import CONF_VIN, DOMAIN, MANUFACTURER
+ 
+@@ -50,7 +51,7 @@ class VolvoOAuth2FlowHandler(AbstractOAuth2FlowHandler, domain=DOMAIN):
+     def extra_authorize_data(self) -> dict:
+         """Extra data that needs to be appended to the authorize url."""
+         return super().extra_authorize_data | {
+-            "scope": " ".join(ALL_SCOPES),
++            "scope": " ".join(LIMITED_SCOPES),
+         }
+ 
+     @override
