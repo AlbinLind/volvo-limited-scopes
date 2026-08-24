@@ -1,0 +1,84 @@
+name: Create RC Release
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+jobs:
+  release:
+    # Only run when PR is merged (not just closed) and from a release branch
+    if: >
+      github.event.pull_request.merged == true &&
+      (startsWith(github.event.pull_request.head.ref, 'release/') ||
+       contains(github.event.pull_request.labels.*.name, 'sync'))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # For creating tags and releases
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Extract version from PR
+        id: version
+        run: |
+          # Try to extract version from branch name (release/2026.08.25-build1)
+          BRANCH="${{ github.event.pull_request.head.ref }}"
+          if [[ "$BRANCH" =~ release/(.+) ]]; then
+            VERSION="${BASH_REMATCH[1]}"
+          else
+            # Fallback: use PR title or run number
+            VERSION="$(date +%Y.%m.%d)-build${{ github.run_number }}"
+          fi
+          
+          TAG="v${VERSION}"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "Release version: $VERSION"
+
+      - name: Verify component exists
+        run: |
+          if [ ! -d "custom_components/volvo" ]; then
+            echo "Error: custom_components/volvo/ not found"
+            exit 1
+          fi
+          echo "✓ custom_components/volvo/ found"
+
+      - name: Create release archive
+        run: |
+          zip -r volvo-limited-scopes.zip custom_components/volvo/
+
+      - name: Create Git tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "${{ steps.version.outputs.tag }}" -m "Release ${{ steps.version.outputs.version }}"
+          git push origin "${{ steps.version.outputs.tag }}"
+
+      - name: Create GitHub Release (RC)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: "Volvo Limited Scopes ${{ steps.version.outputs.version }} (RC)"
+          body: |
+            ## Release Candidate ${{ steps.version.outputs.version }}
+            
+            **Upstream SHA**: ${{ github.event.pull_request.head.sha }}
+            
+            ### Changes
+            - Synced with Home Assistant core upstream
+            - Excludes sensitive scopes: lock, unlock, engine start/stop, honk/flash
+            
+            ### Installation
+            1. Download `volvo-limited-scopes.zip` below
+            2. Extract to `<config>/custom_components/volvo/`
+            3. Restart Home Assistant
+            
+            ### Source PR
+            ${{ github.event.pull_request.html_url }}
+          files: volvo-limited-scopes.zip
+          prerelease: true
+          generate_release_notes: true
