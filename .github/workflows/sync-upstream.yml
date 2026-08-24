@@ -1,0 +1,162 @@
+name: Sync with Upstream
+
+on:
+  schedule:
+    - cron: '0 0 * * 1'  # Every Monday at midnight UTC
+  workflow_dispatch:       # Manual trigger
+    inputs:
+      force:
+        description: 'Force rebuild even if no changes'
+        required: false
+        default: 'false'
+        type: boolean
+
+# Only allow one sync at a time
+concurrency:
+  group: sync-upstream
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write      # For pushing branches
+      pull-requests: write # For creating PRs
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for SHA tracking
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Apply patches
+        id: apply
+        env:
+          FORCE_UPDATE: ${{ github.event.inputs.force || '0' }}
+        run: |
+          # Run the apply script
+          ./scripts/apply-patches.sh 2>&1 | tee apply.log
+          
+          # Check if there were changes
+          if grep -q "No upstream changes detected" apply.log; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+          
+          # Extract new SHA
+          NEW_SHA=$(cat .current-upstream-sha)
+          echo "new_sha=$NEW_SHA" >> $GITHUB_OUTPUT
+
+      - name: Generate version (CalVer)
+        if: steps.apply.outputs.changed == 'true'
+        id: version
+        run: |
+          # CalVer format: YYYY.mm.dd-build<run_number>
+          # Example: 2024.12.16-build42
+          YEAR=$(date +%Y)
+          MONTH=$(date +%m)
+          DAY=$(date +%d)
+          RUN_NUMBER=${{ github.run_number }}
+          
+          VERSION="${YEAR}.${MONTH}.${DAY}-build${RUN_NUMBER}"
+          BRANCH="release/${VERSION}"
+          TAG="v${VERSION}"
+          
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "Generated version: $VERSION"
+
+      - name: Create release branch
+        if: steps.apply.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Create and checkout release branch
+          git checkout -b "${{ steps.version.outputs.branch }}"
+          
+          # Stage changes
+          git add custom_components/ .current-upstream-sha
+          
+          # Create commit
+          git commit -m "chore: sync upstream ${{ steps.version.outputs.version }}
+
+          Upstream SHA: ${{ steps.apply.outputs.new_sha }}
+          
+          Auto-synced from upstream Home Assistant core.
+          Excludes sensitive scopes: lock, unlock, engine start/stop, honk/flash."
+          
+          # Push branch
+          git push -u origin "${{ steps.version.outputs.branch }}"
+
+      - name: Create Pull Request
+        if: steps.apply.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ steps.version.outputs.branch }}
+          base: main
+          title: "Release ${{ steps.version.outputs.version }} - Sync upstream"
+          body: |
+            ## Release ${{ steps.version.outputs.version }}
+            
+            **Upstream SHA**: ${{ steps.apply.outputs.new_sha }}
+            
+            ### Changes
+            - Synced with Home Assistant core upstream
+            - Excludes sensitive scopes: lock, unlock, engine start/stop, honk/flash
+            
+            ### What's included
+            This PR updates the Volvo component to match the latest upstream version from [Home Assistant core](https://github.com/home-assistant/core).
+            
+            ### Testing
+            - [ ] Component loads without errors
+            - [ ] Read-only sensors work correctly
+            - [ ] Sensitive commands (lock, unlock, engine start) are not available
+            
+            ### Installation after merge
+            1. Go to [Releases](../../releases)
+            2. Download `${{ steps.version.outputs.tag }}.zip`
+            3. Extract to `<config>/custom_components/volvo/`
+            4. Restart Home Assistant
+          labels: |
+            sync
+            upstream
+            release
+
+      - name: Create RC Release
+        if: steps.apply.outputs.changed == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: "Volvo Limited Scopes ${{ steps.version.outputs.version }} (RC)"
+          body: |
+            ## Release Candidate ${{ steps.version.outputs.version }}
+            
+            **Upstream SHA**: ${{ steps.apply.outputs.new_sha }}
+            
+            ### Changes
+            - Synced with Home Assistant core upstream
+            - Excludes sensitive scopes: lock, unlock, engine start/stop, honk/flash
+            
+            ### Installation
+            1. Download `volvo-limited-scopes.zip` below
+            2. Extract to `<config>/custom_components/volvo/`
+            3. Restart Home Assistant
+            
+            ### Upstream Changes
+            Check the [HA core commit](${{ github.server_url }}/home-assistant/core/commit/${{ steps.apply.outputs.new_sha }}) for details.
+          files: volvo-limited-scopes.zip
+          prerelease: true
+          generate_release_notes: true
+
+      - name: No changes
+        if: steps.apply.outputs.changed != 'true'
+        run: echo "No upstream changes detected. Skipping release."
