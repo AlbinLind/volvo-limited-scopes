@@ -1,0 +1,100 @@
+diff --git a/application_credentials.py b/application_credentials.py
+index 2a3582c6..ef55f8f0 100644
+--- a/application_credentials.py
++++ b/application_credentials.py
+@@ -3,7 +3,6 @@
+ from typing import override
+ 
+ from volvocarsapi.auth import AUTHORIZE_URL, TOKEN_URL
+-from volvocarsapi.scopes import ALL_SCOPES
+ 
+ from homeassistant.components.application_credentials import ClientCredential
+ from homeassistant.core import HomeAssistant
+@@ -11,6 +10,8 @@ from homeassistant.helpers.config_entry_oauth2_flow import (
+     LocalOAuth2ImplementationWithPkce,
+ )
+ 
++from .const import LIMITED_SCOPES
++
+ 
+ async def async_get_auth_implementation(
+     hass: HomeAssistant, auth_domain: str, credential: ClientCredential
+@@ -34,5 +35,5 @@ class VolvoOAuth2Implementation(LocalOAuth2ImplementationWithPkce):
+     def extra_authorize_data(self) -> dict:
+         """Extra data that needs to be appended to the authorize url."""
+         return super().extra_authorize_data | {
+-            "scope": " ".join(ALL_SCOPES),
++            "scope": " ".join(LIMITED_SCOPES),
+         }
+diff --git a/config_flow.py b/config_flow.py
+index 06d8d02e..ada4a505 100644
+--- a/config_flow.py
++++ b/config_flow.py
+@@ -7,7 +7,6 @@ from typing import Any, override
+ import voluptuous as vol
+ from volvocarsapi.api import VolvoCarsApi
+ from volvocarsapi.models import VolvoApiException, VolvoCarsVehicle
+-from volvocarsapi.scopes import ALL_SCOPES
+ 
+ from homeassistant.config_entries import (
+     SOURCE_REAUTH,
+@@ -28,7 +27,7 @@ from homeassistant.helpers.selector import (
+ )
+ 
+ from .api import ConfigFlowVolvoAuth
+-from .const import CONF_VIN, DOMAIN, MANUFACTURER
++from .const import CONF_VIN, DOMAIN, MANUFACTURER, LIMITED_SCOPES
+ 
+ _LOGGER = logging.getLogger(__name__)
+ 
+@@ -58,7 +57,7 @@ class VolvoOAuth2FlowHandler(AbstractOAuth2FlowHandler, domain=DOMAIN):
+     def extra_authorize_data(self) -> dict:
+         """Extra data that needs to be appended to the authorize url."""
+         return super().extra_authorize_data | {
+-            "scope": " ".join(ALL_SCOPES),
++            "scope": " ".join(LIMITED_SCOPES),
+         }
+ 
+     @property
+diff --git a/const.py b/const.py
+index 3c5e1d74..2accac36 100644
+--- a/const.py
++++ b/const.py
+@@ -3,6 +3,37 @@
+ from homeassistant.const import Platform
+ 
+ DOMAIN = "volvo"
++
++# Limited scopes - excludes sensitive commands
++LIMITED_SCOPES = [
++    "openid",
++    "conve:battery_charge_level",
++    "conve:brake_status",
++    "conve:climatization_start_stop",
++    "conve:command_accessibility",
++    "conve:commands",
++    "conve:diagnostics_engine_status",
++    "conve:diagnostics_workshop",
++    "conve:doors_status",
++    "conve:engine_status",
++    "conve:fuel_status",
++    "conve:lock_status",
++    "conve:odometer_status",
++    "conve:trip_statistics",
++    "conve:tyre_status",
++    "conve:vehicle_relation",
++    "conve:warnings",
++    "conve:windows_status",
++    "energy:capability:read",
++    "energy:state:read",
++    "location:read",
++]
++# Excluded sensitive scopes:
++# - conve:lock (lock car)
++# - conve:unlock (unlock car)
++# - conve:engine_start_stop (start/stop engine)
++# - conve:honk_flash (honk and flash)
++
+ PLATFORMS: list[Platform] = [
+     Platform.BINARY_SENSOR,
+     Platform.BUTTON,
