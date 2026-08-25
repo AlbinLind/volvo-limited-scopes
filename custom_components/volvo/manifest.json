@@ -1,0 +1,22 @@
+{
+  "domain": "volvo",
+  "name": "Volvo (Limited Scopes)",
+  "codeowners": [
+    "@thomasddn"
+  ],
+  "config_flow": true,
+  "dependencies": [
+    "application_credentials"
+  ],
+  "documentation": "https://github.com/AlbinLind/volvo-limited-scopes/",
+  "issue_tracker": "https://github.com/AlbinLind/volvo-limited-scopes/issues",
+  "integration_type": "device",
+  "iot_class": "cloud_polling",
+  "loggers": [
+    "volvocarsapi"
+  ],
+  "version": "2026.08.25-build11",
+  "requirements": [
+    "volvocarsapi==0.4.4"
+  ]
+}
