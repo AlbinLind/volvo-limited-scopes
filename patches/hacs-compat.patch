@@ -1,24 +1,22 @@
 diff --git a/manifest.json b/manifest.json
-index 1234567..abcdefg 100644
+index 8be6c4da..dda17601 100644
 --- a/manifest.json
 +++ b/manifest.json
-@@ -1,13 +1,11 @@
+@@ -1,13 +1,14 @@
  {
    "domain": "volvo",
 -  "name": "Volvo",
--  "codeowners": ["@thomasddn"],
 +  "name": "Volvo (Limited Scopes)",
-+  "codeowners": ["@thomasddn"],
+   "codeowners": ["@thomasddn"],
    "config_flow": true,
    "dependencies": ["application_credentials"],
 -  "documentation": "https://www.home-assistant.io/integrations/volvo",
-+  "documentation": "https://github.com/AlbinLind/volvo-limited-scopes",
++  "documentation": "https://github.com/AlbinLind/volvo-limited-scopes/",
 +  "issue_tracker": "https://github.com/AlbinLind/volvo-limited-scopes/issues",
    "integration_type": "device",
    "iot_class": "cloud_polling",
--  "loggers": ["volvocarsapi"],
+   "loggers": ["volvocarsapi"],
 -  "quality_scale": "platinum",
-   "requirements": ["volvocarsapi==0.4.4"],
--  "version": "1.0.0"
-+  "version": "YYYY.mm.dd"
++  "version": "0.0.0",
+   "requirements": ["volvocarsapi==0.4.4"]
  }
