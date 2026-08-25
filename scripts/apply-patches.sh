@@ -4,7 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 PATCHES_DIR="$ROOT_DIR/patches"
-OUTPUT_DIR="$ROOT_DIR/custom_components/volvo"
+OUTPUT_DIR="$ROOT_DIR/custom_components/volvo_limited"
 
 # Upstream repo settings
 UPSTREAM_REPO="https://github.com/home-assistant/core.git"

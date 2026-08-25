@@ -25,7 +25,7 @@ This custom component solves that by only requesting **read-only scopes**, allow
 
 1. Download the latest release from [Releases](../../releases)
 2. Extract `volvo-limited-scopes.zip`
-3. Copy the `volvo` folder to `<config>/custom_components/`
+3. Copy the `volvo_limited` folder to `<config>/custom_components/`
 4. Restart Home Assistant
 
 ### HACS (Manual)

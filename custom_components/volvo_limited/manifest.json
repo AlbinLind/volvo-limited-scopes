@@ -1,5 +1,5 @@
 {
-  "domain": "volvo",
+  "domain": "volvo_limited",
   "name": "Volvo (Limited Scopes)",
   "codeowners": [
     "@thomasddn"
@@ -15,7 +15,7 @@
   "loggers": [
     "volvocarsapi"
   ],
-  "version": "2026.08.25-build11",
+  "version": "2026.08.25",
   "requirements": [
     "volvocarsapi==0.4.4"
   ]

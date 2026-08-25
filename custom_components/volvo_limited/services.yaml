@@ -4,7 +4,7 @@ get_image_url:
       required: true
       selector:
         config_entry:
-          integration: volvo
+          integration: volvo_limited
     images:
       required: false
       selector:

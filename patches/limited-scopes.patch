@@ -63,7 +63,8 @@ index 3c5e1d74..2accac36 100644
 @@ -3,6 +3,37 @@
  from homeassistant.const import Platform
  
- DOMAIN = "volvo"
+-DOMAIN = "volvo"
++DOMAIN = "volvo_limited"
 +
 +# Limited scopes - excludes sensitive commands
 +LIMITED_SCOPES = [

@@ -4,7 +4,8 @@ index 8be6c4da..dda17601 100644
 +++ b/manifest.json
 @@ -1,13 +1,14 @@
  {
-   "domain": "volvo",
+-  "domain": "volvo",
++  "domain": "volvo_limited",
 -  "name": "Volvo",
 +  "name": "Volvo (Limited Scopes)",
    "codeowners": ["@thomasddn"],
@@ -20,3 +21,17 @@ index 8be6c4da..dda17601 100644
 +  "version": "0.0.0",
    "requirements": ["volvocarsapi==0.4.4"]
  }
+
+diff --git a/services.yaml b/services.yaml
+--- a/services.yaml
++++ b/services.yaml
+@@ -1,8 +1,8 @@
+ get_image_url:
+   fields:
+     entry:
+       required: true
+       selector:
+         config_entry:
+-          integration: volvo
++          integration: volvo_limited
+     images:

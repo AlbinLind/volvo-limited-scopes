@@ -2,7 +2,7 @@
 
 from homeassistant.const import Platform
 
-DOMAIN = "volvo"
+DOMAIN = "volvo_limited"
 
 # Limited scopes - excludes sensitive commands
 LIMITED_SCOPES = [
