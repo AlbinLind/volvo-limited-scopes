@@ -1,0 +1,9 @@
+{
+  "domain": "volvo",
+  "name": "Volvo (Limited Scopes)",
+  "config_flow": true,
+  "dependencies": ["application_credentials"],
+  "integration_type": "device",
+  "iot_class": "cloud_polling",
+  "requirements": ["volvocarsapi==0.4.4"]
+}
