@@ -63,7 +63,8 @@ index 3c5e1d74..2accac36 100644
 @@ -3,6 +3,37 @@
  from homeassistant.const import Platform
  
- DOMAIN = "volvo"
+-DOMAIN = "volvo"
++DOMAIN = "volvo_limited"
 +
 +# Limited scopes - excludes sensitive commands
 +LIMITED_SCOPES = [
@@ -98,3 +99,16 @@ index 3c5e1d74..2accac36 100644
  PLATFORMS: list[Platform] = [
      Platform.BINARY_SENSOR,
      Platform.BUTTON,
+diff --git a/services.yaml b/services.yaml
+--- a/services.yaml
++++ b/services.yaml
+@@ -1,8 +1,8 @@
+ get_image_url:
+   fields:
+     entry:
+       required: true
+       selector:
+         config_entry:
+-          integration: volvo
++          integration: volvo_limited
+     images:

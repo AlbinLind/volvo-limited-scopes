@@ -41,15 +41,15 @@ jobs:
 
       - name: Verify component exists
         run: |
-          if [ ! -d "custom_components/volvo" ]; then
-            echo "Error: custom_components/volvo/ not found"
+          if [ ! -d "custom_components/volvo_limited" ]; then
+            echo "Error: custom_components/volvo_limited/ not found"
             exit 1
           fi
-          echo "✓ custom_components/volvo/ found"
+          echo "✓ custom_components/volvo_limited/ found"
 
       - name: Create release archive
         run: |
-          zip -r volvo-limited-scopes.zip custom_components/volvo/
+          zip -r volvo-limited-scopes.zip custom_components/volvo_limited/
 
       - name: Create Git tag
         run: |
@@ -74,7 +74,7 @@ jobs:
             
             ### Installation
             1. Download `volvo-limited-scopes.zip` below
-            2. Extract to `<config>/custom_components/volvo/`
+            2. Extract to `<config>/custom_components/volvo_limited/`
             3. Restart Home Assistant
             
             ### Source PR

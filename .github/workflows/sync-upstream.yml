@@ -73,7 +73,7 @@ jobs:
           # Create and checkout release branch
           git checkout -b "${{ steps.version.outputs.branch }}"
           
-          # Run the apply script with version (generates custom_components/volvo/)
+          # Run the apply script with version (generates custom_components/volvo_limited/)
           # Do NOT commit - let create-pull-request handle it
           VERSION="${{ steps.version.outputs.version }}" ./scripts/apply-patches.sh
           
@@ -109,7 +109,7 @@ jobs:
             ### Installation after merge
             1. Go to [Releases](../../releases)
             2. Download `${{ steps.version.outputs.tag }}.zip`
-            3. Extract to `<config>/custom_components/volvo/`
+            3. Extract to `<config>/custom_components/volvo_limited/`
             4. Restart Home Assistant
           labels: |
             sync
