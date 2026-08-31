@@ -15,7 +15,7 @@
   "loggers": [
     "volvocarsapi"
   ],
-  "version": "2026.08.25",
+  "version": "2026.08.31-build14",
   "requirements": [
     "volvocarsapi==0.4.4"
   ]
