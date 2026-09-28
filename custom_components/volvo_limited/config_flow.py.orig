@@ -7,6 +7,7 @@ from typing import Any, override
 import probatio
 from volvocarsapi.api import VolvoCarsApi
 from volvocarsapi.models import VolvoApiException, VolvoCarsVehicle
+from volvocarsapi.scopes import ALL_SCOPES
 
 from homeassistant.config_entries import (
     SOURCE_REAUTH,
@@ -27,7 +28,7 @@ from homeassistant.helpers.selector import (
 )
 
 from .api import ConfigFlowVolvoAuth
-from .const import CONF_VIN, DOMAIN, MANUFACTURER, LIMITED_SCOPES
+from .const import CONF_VIN, DOMAIN, MANUFACTURER
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -57,7 +58,7 @@ class VolvoOAuth2FlowHandler(AbstractOAuth2FlowHandler, domain=DOMAIN):
     def extra_authorize_data(self) -> dict:
         """Extra data that needs to be appended to the authorize url."""
         return super().extra_authorize_data | {
-            "scope": " ".join(LIMITED_SCOPES),
+            "scope": " ".join(ALL_SCOPES),
         }
 
     @property
