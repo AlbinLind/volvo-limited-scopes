@@ -1,6 +1,9 @@
 {
-  "domain": "volvo_limited",
-  "name": "Volvo (Limited Scopes)",
+  "domain": "volvo",
+  "name": "Volvo",
+  "categories": [
+    "vehicles_transport.cars_evs"
+  ],
   "codeowners": [
     "@thomasddn"
   ],
@@ -8,15 +11,15 @@
   "dependencies": [
     "application_credentials"
   ],
-  "documentation": "https://github.com/AlbinLind/volvo-limited-scopes/",
-  "issue_tracker": "https://github.com/AlbinLind/volvo-limited-scopes/issues",
+  "documentation": "https://www.home-assistant.io/integrations/volvo",
   "integration_type": "device",
   "iot_class": "cloud_polling",
   "loggers": [
     "volvocarsapi"
   ],
-  "version": "2026.08.25",
+  "quality_scale": "platinum",
   "requirements": [
     "volvocarsapi==0.4.4"
-  ]
+  ],
+  "version": "2026.10.19-build21"
 }
