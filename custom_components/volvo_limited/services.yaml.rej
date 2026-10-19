@@ -1,0 +1,12 @@
+--- services.yaml
++++ services.yaml
+@@ -1,8 +1,8 @@
+ get_image_url:
+   fields:
+     entry:
+       required: true
+       selector:
+         config_entry:
+-          integration: volvo
++          integration: volvo_limited
+     images:
